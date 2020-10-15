@@ -2,8 +2,9 @@
   <div class="header">
     <div class="header__container">
       <div class="header__row">
-        <button class="header__btn header__btn--menu" aria-label="Меню">
-          <Icon class="header__icon header__icon--burger" name="nav-burger" />
+        <button class="header__btn header__btn--menu" aria-label="Меню" @click="toggleActive">
+          <Icon class="header__icon header__icon--burger" name="nav-burger" v-if="!isActive" />
+          <Icon class="header__icon header__icon--burger" name="nav-close" v-else />
         </button>
         <AppHeaderLogo class="header__logo" />
         <AppHeaderUserMenu class="header__user-menu" />
@@ -13,8 +14,8 @@
         <AppSearch class="header__search" />
       </div>
     </div>
-    <div class="header__wrapper header__wrapper--menu">
-      <ul class="header-menu">
+    <div class="header__wrapper header__wrapper--menu" v-if="isActive">
+      <ul class="header-menu" v-if="activeAt==='menu'">
         <li class="header-menu__item">
           <button class="header-menu__link">
             Прайс-лист
@@ -26,7 +27,7 @@
           </button>
         </li>
         <li class="header-menu__item">
-          <button class="header-menu__link">
+          <button class="header-menu__link" @click="activateCatalog">
             Каталог товаров
           </button>
         </li>
@@ -59,41 +60,31 @@
           </ExternalLink>
         </li>
       </ul>
-      <ul class="header-menu header-menu--catalog">
-        <li class="header-menu__item">
-          <nuxt-link class="header-menu__link" to="/category/1/">
-            category 1
-            <Icon class="header-menu__icon header-menu__icon--angle-right" name="gm-angle-right" />
-          </nuxt-link>
+      <ul class="header-menu header-menu--catalog" v-if="activeAt==='catalog'">
+        <li class="header-menu__item header-menu__item--link-back" v-if="currentSubtreeIndex > 0">
+          <button
+            class="header-menu__link"
+            @click="setPreviousItems"
+          >
+            <Icon class="header-menu__icon header-menu__icon--angle-left" name="gm-angle-right" />
+            {{ itemsStack[currentSubtreeIndex].name || 'Каталог товаров' }}
+          </button>
         </li>
-        <li class="header-menu__item">
-          <nuxt-link class="header-menu__link" to="/category/2/">
-            category 2
+        <li class="header-menu__item" v-for="item of itemsStack[currentSubtreeIndex].submenu" :key="item.id">
+          <button
+            class="header-menu__link"
+            @click="setNewItems(item)"
+            v-if="item.submenu"
+          >
+            {{ item.name }}
             <Icon class="header-menu__icon header-menu__icon--angle-right" name="gm-angle-right" />
-          </nuxt-link>
-        </li>
-        <li class="header-menu__item">
-          <nuxt-link class="header-menu__link" to="/category/3/">
-            category 3
-            <Icon class="header-menu__icon header-menu__icon--angle-right" name="gm-angle-right" />
-          </nuxt-link>
-        </li>
-        <li class="header-menu__item">
-          <nuxt-link class="header-menu__link" to="/category/4/">
-            category 4
-            <Icon class="header-menu__icon header-menu__icon--angle-right" name="gm-angle-right" />
-          </nuxt-link>
-        </li>
-        <li class="header-menu__item">
-          <nuxt-link class="header-menu__link" to="/category/5/">
-            category 5
-            <Icon class="header-menu__icon header-menu__icon--angle-right" name="gm-angle-right" />
-          </nuxt-link>
-        </li>
-        <li class="header-menu__item">
-          <nuxt-link class="header-menu__link" to="/category/6/">
-            category 6
-            <Icon class="header-menu__icon header-menu__icon--angle-right" name="gm-angle-right" />
+          </button>
+          <nuxt-link
+            class="header-menu__link"
+            :to="{ path: item.absolute_url }"
+            v-else
+          >
+            {{ item.name }}
           </nuxt-link>
         </li>
       </ul>
@@ -115,6 +106,57 @@ export default {
     AppHeaderCatalogBtn,
     AppSearch,
     ExternalLink,
+  },
+  data() {
+    return {
+      itemsStack: [],
+      currentSubtreeIndex: 0,
+      activeItemName: '',
+      isActive: false,
+      activeAt: '',
+    };
+  },
+  watch: {
+    activeAt() {
+      if (this.activeAt) {
+        document.querySelector('body').style = `
+          position: fixed;
+          top: 0px;
+          right: 0px;
+          bottom: 0px;
+          left: 0px;
+          overflow-y: scroll;
+        `;
+      }
+    },
+  },
+  async mounted() {
+    const response = await fetch('https://web.gdml.ru/api/v1/categories_tree/');
+    const items = await response.json();
+    this.itemsStack.push({
+      name: 'Все категории',
+      submenu: items,
+    });
+  },
+  methods: {
+    toggleActive() {
+      if (!this.activeAt) {
+        this.activeAt = 'menu';
+      } else {
+        this.activeAt = '';
+      }
+      this.isActive = !this.isActive;
+      this.currentSubtreeIndex = 0;
+    },
+    activateCatalog() {
+      this.activeAt = 'catalog';
+    },
+    setNewItems(items) {
+      this.itemsStack[++this.currentSubtreeIndex] = items;
+    },
+    setPreviousItems() {
+      this.currentSubtreeIndex--;
+    },
   },
 };
 </script>
@@ -145,6 +187,11 @@ export default {
     flex-grow: 1;
   }
 
+  &__wrapper {
+    height: 520px;
+    background-color: hsl(0, 0%, 100%);
+  }
+
   &__btn {
     flex-shrink: 0;
 
@@ -160,6 +207,7 @@ export default {
       border: none;
       outline: none;
       -webkit-tap-highlight-color: transparent;
+      transition: visibility 3s;
     }
 
     &--catalog {
@@ -183,7 +231,6 @@ export default {
   --link-outline-color: transparent;
   --icon--angle-right-color: hsl(199, 22%, 77%);
 
-  display: none;
   padding: 0;
   overflow-y: scroll;
   list-style: none;
@@ -192,6 +239,12 @@ export default {
   &__item {
     @media (min-width: $screen-lg) {
       --link-padding: 7px 20px;
+    }
+
+    &--link-back > button {
+      font-weight: 700;
+      text-align: end;
+      background-color: hsl(215, 40%, 94%);
     }
 
     &:hover,
@@ -228,6 +281,7 @@ export default {
     font-weight: 500;
     line-height: 20px;
     color: var(--link-color);
+    text-align: start;
     cursor: pointer;
     background-color: var(--link-background-color);
     border: 1px solid transparent;
@@ -248,6 +302,18 @@ export default {
       height: 20px;
       margin-left: 8px;
       color: var(--icon--angle-right-color);
+
+      @media (min-width: $screen-lg) {
+        margin-left: 10px;
+      }
+    }
+
+    &--angle-left {
+      width: 6px;
+      height: 20px;
+      margin-left: 8px;
+      color: var(--icon--angle-right-color);
+      transform: rotate(180deg);
 
       @media (min-width: $screen-lg) {
         margin-left: 10px;

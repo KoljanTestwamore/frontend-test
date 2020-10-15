@@ -1,0 +1,52 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`App Header on Mobile proceeds clicks 1`] = `
+"<button class=\\"header-menu__link\\">
+  Прайс-лист
+</button>"
+`;
+
+exports[`App Header on Mobile renders correctly 1`] = `
+"<div class=\\"header__wrapper header__wrapper--menu\\">
+  <ul class=\\"header-menu\\">
+    <li class=\\"header-menu__item\\"><button class=\\"header-menu__link\\">
+        Прайс-лист
+      </button></li>
+    <li class=\\"header-menu__item\\"><button class=\\"header-menu__link\\">
+        Отслеживание заказа
+      </button></li>
+    <li class=\\"header-menu__item\\"><button class=\\"header-menu__link\\">
+        Каталог товаров
+      </button></li>
+    <li class=\\"header-menu__item\\">
+      <nuxt-link to=\\"/info/delivery/\\" class=\\"header-menu__link\\">
+        Доставка
+        <icon name=\\"gm-angle-right\\" class=\\"header-menu__icon header-menu__icon--angle-right\\"></icon>
+      </nuxt-link>
+    </li>
+    <li class=\\"header-menu__item\\">
+      <nuxt-link to=\\"/about/\\" class=\\"header-menu__link\\">
+        О компании
+        <icon name=\\"gm-angle-right\\" class=\\"header-menu__icon header-menu__icon--angle-right\\"></icon>
+      </nuxt-link>
+    </li>
+    <li class=\\"header-menu__item\\">
+      <nuxt-link to=\\"/info/contacts/\\" class=\\"header-menu__link\\">
+        Контакты
+        <icon name=\\"gm-angle-right\\" class=\\"header-menu__icon header-menu__icon--angle-right\\"></icon>
+      </nuxt-link>
+    </li>
+    <li class=\\"header-menu__item\\">
+      <externallink-stub href=\\"https://gdematerial.ru/blog/\\" label=\\"\\" target=\\"_blank\\" rel=\\"noopener, noreferrer, noindex, nofollow\\" class=\\"header-menu__link\\">
+        Блог
+      </externallink-stub>
+    </li>
+    <li class=\\"header-menu__item\\">
+      <externallink-stub href=\\"https://partner.gdml.ru\\" label=\\"\\" target=\\"_blank\\" rel=\\"noopener, noreferrer, noindex, nofollow\\" class=\\"header-menu__link\\">
+        Поставщикам
+      </externallink-stub>
+    </li>
+  </ul>
+  <!---->
+</div>"
+`;

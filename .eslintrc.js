@@ -34,6 +34,7 @@ module.exports = {
     }
   },
   rules: {
+    'linebreak-style': 0,
     'no-param-reassign': 'off',
     'import/prefer-default-export': 'off',
     'prefer-arrow-callback': 'off',
